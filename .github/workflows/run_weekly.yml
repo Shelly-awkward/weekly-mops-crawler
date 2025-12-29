@@ -1,0 +1,38 @@
+name: Weekly MOPS Crawler
+
+# 設定觸發時間
+on:
+  schedule:
+    # GitHub 使用 UTC 時間。台灣時間週一早上 09:00 等於 UTC 時間週一 01:00
+    # 格式: 分 時 日 月 週
+    - cron: '0 1 * * 1'
+  # 允許手動按下按鈕觸發 (方便測試用)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code (下載程式碼)
+        uses: actions/checkout@v3
+
+      - name: Set up Python (設定 Python 環境)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies (安裝套件)
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run script (執行爬蟲)
+        run: python main.py
+
+      - name: Upload Excel Artifact (上傳 Excel 結果)
+        # 如果有產出 Excel，這個步驟會把它存下來讓你下載
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-report
+          path: "*.xlsx"
+          retention-days: 7
